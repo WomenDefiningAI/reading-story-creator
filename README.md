@@ -1,24 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Reading Story Creator
+
+This is a [Next.js](https://nextjs.org/) web application designed to help parents create simple, illustrated stories for young children (Kindergarten / 1st Grade reading levels).
+
+## Core Functionality (MVP)
+
+*   **Story Generation:** Creates custom 6-panel stories with illustrations based on a user-provided topic/character and selected reading level (K or 1st grade).
+*   **Input:** Accepts text input for the story idea. Voice input via Web Speech API is planned.
+*   **API Integration:** Uses the Google Gemini API for generating story text and illustrations (requires user-provided API key).
+*   **Interface:** Simple, mobile-friendly UI built with Shadcn components.
+*   **Output:** Displays the story panel-by-panel and allows downloading as a printable PDF (2 panels per page).
+*   **Technology:** Next.js (App Router), React, TypeScript, Tailwind CSS, Zustand, Client-Side APIs (Gemini, Web Speech), html2pdf.js.
+*   **Limitations:** No user accounts, no persistent storage beyond API key in local storage, standalone story experiences.
 
 ## Getting Started
 
-First, run the development server:
+1.  **Prerequisites:** Node.js (v18+ recommended), npm/yarn/pnpm.
+2.  **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd reading-story-creator
+    ```
+3.  **Install dependencies:**
+    ```bash
+    npm install
+    # or yarn install / pnpm install
+    ```
+4.  **Environment Variables:** You will need a Google Gemini API key. While the app allows entering it directly, you can optionally create a `.env.local` file in the root directory for development:
+    ```
+    # .env.local
+    # NEXT_PUBLIC_GEMINI_API_KEY=YOUR_API_KEY_HERE 
+    # (Note: Currently the app reads/saves directly from/to local storage, 
+    # .env usage is not implemented yet but might be in the future)
+    ```
+5.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+6.  **Open your browser:** Navigate to [http://localhost:3000](http://localhost:3000).
+7.  **Usage:** Enter your Gemini API key, select a reading level, type a story topic, and click "Create Story".
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Project Structure
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+*   `src/app/`: Main application routes and layouts (Next.js App Router).
+*   `src/components/`: Reusable React components (UI, form, story elements).
+*   `src/lib/`: Utility functions, constants (e.g., vocabulary lists).
+*   `src/services/`: Modules for interacting with external APIs (Gemini, PDF generation).
+*   `src/store/`: Zustand state management store.
+*   `src/hooks/`: Custom React hooks (e.g., for speech recognition).
+*   `src/types/`: TypeScript type definitions.
+*   `public/`: Static assets (images, fonts).
+*   `docs/`: Project documentation (PRD, Tech Spec).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+(This README is based on the initial MVP plan. Features and implementation details may evolve.)
 
 ## Learn More
 
