@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { GeminiService } from '@/services/geminiService';
 import { useStoryStore } from '@/store/storyStore';
 import type { ReadingLevel } from '@/types';
 import { Eye, EyeOff, Mic, MicOff } from 'lucide-react';
@@ -79,7 +80,7 @@ export function StoryInputForm() {
 		}
 	};
 
-	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		if (isListening) {
 			stopListening();
@@ -91,17 +92,31 @@ export function StoryInputForm() {
 		startLoading();
 		console.log('Submitting:', { topic, readingLevel });
 
-		// Simulate API call
-		setTimeout(() => {
-			setGeneratedStory({
-				title: `A Story About ${topic || 'a Dragon'}`,
-				panels: Array.from({ length: 6 }).map((_, i) => ({
-					text: `This is panel ${i + 1} about ${topic || 'a dragon'}. It's written for ${readingLevel}.`,
-					imageData: '/placeholderimage1.png',
-					altText: `Illustration for panel ${i + 1}`,
-				})),
-			});
-		}, 1500);
+		// Create a new GeminiService instance with the user-provided API key
+		const geminiService = new GeminiService(apiKey);
+
+		try {
+			// First validate the API key
+			const isValidKey = await geminiService.validateApiKey();
+			if (!isValidKey) {
+				throw new Error('Invalid API key. Please check your Gemini API key and try again.');
+			}
+
+			// Generate the story
+			const story = await geminiService.generateStory(topic, readingLevel);
+			setGeneratedStory(story);
+		} catch (error) {
+			console.error('Error generating story:', error);
+			let errorMessage = 'An error occurred while generating the story. Please try again.';
+			
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			} else if (typeof error === 'object' && error !== null && 'message' in error) {
+				errorMessage = String(error.message);
+			}
+			
+			setGeneratedStory(null, errorMessage);
+		}
 	};
 
 	return (
@@ -110,7 +125,6 @@ export function StoryInputForm() {
 				<CardTitle className="text-center text-2xl">
 					Create a Reading Story
 				</CardTitle>
-				{/* Optional: Add CardDescription if needed */}
 			</CardHeader>
 			<CardContent>
 				<form onSubmit={handleSubmit} className="space-y-6">
@@ -255,4 +269,4 @@ export function StoryInputForm() {
 			</CardContent>
 		</Card>
 	);
-}
+} 

@@ -23,11 +23,11 @@ function StoryPanel({ panel }: { panel: StoryPanelData }) {
 				{/* Remove padding for image */}
 				<div className="relative w-full aspect-[4/3] bg-gray-100">
 					<Image
-						src={panel.imageData} // Using placeholder URLs for now
+						src={panel.imageData} // This now supports base64 data URLs from Gemini
 						alt={panel.altText}
-						layout="fill" // Fill the container
-						objectFit="contain" // Contain the image within the bounds
-						unoptimized={true} // Necessary for placeholder URLs or non-standard sources
+						fill // Use fill instead of layout="fill"
+						style={{ objectFit: 'contain' }} // Use style instead of objectFit
+						unoptimized={true} // Necessary for base64 image data 
 					/>
 				</div>
 				<div className="p-6 bg-white">
