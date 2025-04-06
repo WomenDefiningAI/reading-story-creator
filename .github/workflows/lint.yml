@@ -1,0 +1,36 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  biome:
+    name: Biome
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Or your preferred Node.js version
+
+      - name: Install dependencies
+        run: npm ci # Use ci for cleaner installs in CI
+
+      # Cache biome binary downloaded by npm
+      - name: Setup Biome cache
+        uses: actions/cache@v4
+        with:
+            path: node_modules/@biomejs/biome/bin
+            key: biome-binary-${{ runner.os }}
+
+      - name: Run Biome
+        run: npm run check -- --no-errors-on-unmatched # Check code without applying changes
+                                                       # --no-errors-on-unmatched prevents errors if Biome finds no files (e.g., in an empty commit) 
