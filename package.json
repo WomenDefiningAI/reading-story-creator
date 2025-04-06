@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "format": "biome format --write .",
-    "check": "biome check --apply ."
+    "check": "biome check ."
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.2",

@@ -31,6 +31,5 @@ jobs:
             path: node_modules/@biomejs/biome/bin
             key: biome-binary-${{ runner.os }}
 
-      - name: Run Biome
-        run: npm run check -- --no-errors-on-unmatched # Check code without applying changes
-                                                       # --no-errors-on-unmatched prevents errors if Biome finds no files (e.g., in an empty commit) 
+      - name: Run Biome Check
+        run: npm run check # Simply run the check script 
