@@ -73,7 +73,7 @@ export class GeminiService {
 	}
 
 	private constructPrompt(topic: string, level: ReadingLevel): string {
-		return `Create a 6-panel storybook for a [${level === 'kindergarten' ? 'KINDERGARTEN' : '1ST GRADE'}] reader about [${topic}].
+		return `Create a 5-panel storybook for a [${level === 'kindergarten' ? 'KINDERGARTEN' : '1ST GRADE'}] reader about [${topic}].
 
 Reading Level Requirements:
 ${VOCABULARY_CONSTRAINTS[level].description}
@@ -86,8 +86,7 @@ Panel 1: Introduction of characters and clearly defined setting
 Panel 2: Introduction of story problem or goal
 Panel 3: First attempt or action
 Panel 4: Challenge or complication
-Panel 5: Resolution begins
-Panel 6: Happy ending
+Panel 5: Happy ending and resolution
 
 For each panel, I need you to:
 1. First write "Panel X Text:" followed by ONE or TWO simple sentences using appropriate vocabulary
@@ -110,7 +109,7 @@ Panel 2 Text: (One or two simple sentences)
 Panel 2 Image: (Detailed illustration description)
 [Generate illustration]
 
-(Continue this pattern for all 6 panels)
+(Continue this pattern for all 5 panels)
 
 Remember to:
 - Use ONLY approved vocabulary words
@@ -122,76 +121,100 @@ Remember to:
 	private parseResponse(
 		response: EnhancedGenerateContentResponse,
 	): StoryData {
-		console.log('Starting response parsing');
+		console.log('=== START RESPONSE PARSING ===');
 		const story: StoryData = { title: 'My Story', panels: [] };
-		let currentText: string | null = null;
-		let currentPanel = 1;
+		let currentPanelNumber = 0;
+		let pendingImagePanelNumber = 0;
 
 		const parts = response.candidates?.[0]?.content?.parts || [];
-		console.log('Response parts:', JSON.stringify(parts, null, 2));
+		console.log('Total number of parts in response:', parts.length);
+		console.log(
+			'Full response structure:',
+			JSON.stringify(response, null, 2),
+		);
 
-		for (const part of parts) {
+		for (let i = 0; i < parts.length; i++) {
+			const part = parts[i];
+			console.log(`\nProcessing part ${i + 1}/${parts.length}:`, part);
+
 			if (part.text) {
-				console.log('Processing text part:', part.text);
+				console.log('\nText part found:', part.text);
 				const lines = part.text
 					.split('\n')
 					.map((line) => line.trim())
 					.filter(Boolean);
+
+				console.log('Processed lines:', lines);
 
 				for (const line of lines) {
 					if (line.startsWith('Title:')) {
 						story.title = line.replace('Title:', '').trim();
 						console.log('Found title:', story.title);
 					} else if (line.match(/^Panel \d+ Text:/)) {
-						if (currentText) {
-							// Store previous panel with placeholder if we didn't get an image
-							story.panels.push({
-								text: currentText,
-								imageData: '/placeholder-image.png',
-								altText: `Illustration for panel ${currentPanel}`,
-							});
-						}
-						currentText = line
+						const panelNum = Number.parseInt(
+							line.match(/^Panel (\d+) Text:/)?.[1] || '0',
+						);
+						currentPanelNumber = panelNum;
+						const text = line
 							.replace(/^Panel \d+ Text:/, '')
 							.trim();
-						currentPanel++;
-						console.log('Found panel text:', currentText);
+						console.log(
+							`Found panel ${currentPanelNumber} text:`,
+							text,
+						);
+
+						story.panels.push({
+							text: text,
+							imageData: '/placeholderimage1.png',
+							altText: `Illustration for panel ${currentPanelNumber}`,
+						});
+						console.log('Current panels array:', story.panels);
+					} else if (line.match(/^Panel \d+ Image:/)) {
+						pendingImagePanelNumber = Number.parseInt(
+							line.match(/^Panel (\d+) Image:/)?.[1] || '0',
+						);
+						console.log(
+							`Now expecting image for panel ${pendingImagePanelNumber}`,
+						);
 					}
 				}
-			} else if (part.inlineData && currentText) {
-				console.log('Found image data for panel', currentPanel - 1);
-				// Replace the placeholder or add new panel
-				const panelIndex = story.panels.length - 1;
-				const panel = {
-					text: currentText,
-					imageData: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`,
-					altText: `Illustration for panel ${currentPanel - 1}`,
-				};
+			} else if (part.inlineData && pendingImagePanelNumber > 0) {
+				console.log(
+					`\nFound image data part for panel ${pendingImagePanelNumber}`,
+				);
+				console.log('Image MIME type:', part.inlineData.mimeType);
+				console.log('Image data length:', part.inlineData.data.length);
 
-				if (
-					panelIndex >= 0 &&
-					story.panels[panelIndex].text === currentText
-				) {
-					// Replace the placeholder
-					story.panels[panelIndex] = panel;
+				const panelIndex = pendingImagePanelNumber - 1;
+				if (panelIndex < story.panels.length) {
+					story.panels[panelIndex] = {
+						text: story.panels[panelIndex].text,
+						imageData: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`,
+						altText: `Illustration for panel ${pendingImagePanelNumber}`,
+					};
+					console.log(
+						`Updated image for panel ${pendingImagePanelNumber}`,
+					);
+					pendingImagePanelNumber = 0; // Reset after using
 				} else {
-					// Add new panel
-					story.panels.push(panel);
+					console.log(
+						`Warning: Cannot find panel ${pendingImagePanelNumber} to update image`,
+					);
 				}
-				currentText = null;
 			}
 		}
 
-		// Add final panel if we have text without image
-		if (currentText) {
-			story.panels.push({
-				text: currentText,
-				imageData: '/placeholder-image.png',
-				altText: `Illustration for panel ${currentPanel - 1}`,
+		console.log('\n=== FINAL STORY STATE ===');
+		console.log('Title:', story.title);
+		console.log('Number of panels:', story.panels.length);
+		story.panels.forEach((panel, index) => {
+			console.log(`Panel ${index + 1}:`, {
+				text: panel.text,
+				hasImage: !panel.imageData.includes('placeholderimage1.png'),
 			});
-		}
+		});
+		console.log('=== END RESPONSE PARSING ===');
 
-		console.log('Final story data:', JSON.stringify(story, null, 2));
 		return story;
 	}
 }
