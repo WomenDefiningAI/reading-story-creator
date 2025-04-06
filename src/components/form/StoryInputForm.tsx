@@ -99,22 +99,32 @@ export function StoryInputForm() {
 			// First validate the API key
 			const isValidKey = await geminiService.validateApiKey();
 			if (!isValidKey) {
-				throw new Error('Invalid API key. Please check your Gemini API key and try again.');
+				throw new Error(
+					'Invalid API key. Please check your Gemini API key and try again.',
+				);
 			}
 
 			// Generate the story
-			const story = await geminiService.generateStory(topic, readingLevel);
+			const story = await geminiService.generateStory(
+				topic,
+				readingLevel,
+			);
 			setGeneratedStory(story);
 		} catch (error) {
 			console.error('Error generating story:', error);
-			let errorMessage = 'An error occurred while generating the story. Please try again.';
-			
+			let errorMessage =
+				'An error occurred while generating the story. Please try again.';
+
 			if (error instanceof Error) {
 				errorMessage = error.message;
-			} else if (typeof error === 'object' && error !== null && 'message' in error) {
+			} else if (
+				typeof error === 'object' &&
+				error !== null &&
+				'message' in error
+			) {
 				errorMessage = String(error.message);
 			}
-			
+
 			setGeneratedStory(null, errorMessage);
 		}
 	};
@@ -269,4 +279,4 @@ export function StoryInputForm() {
 			</CardContent>
 		</Card>
 	);
-} 
+}

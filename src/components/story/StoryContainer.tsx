@@ -65,7 +65,7 @@ function StoryActions() {
 
 	const handleDownload = async () => {
 		if (!generatedStory) return;
-		
+
 		try {
 			const { generatePDF } = await import('@/services/pdfService');
 			await generatePDF(generatedStory);
@@ -107,17 +107,10 @@ function StoryActions() {
 				</Button>
 			</div>
 			<div className="flex flex-col gap-4 w-full max-w-xs">
-				<Button
-					variant="outline"
-					size="lg"
-					onClick={resetStory}
-				>
+				<Button variant="outline" size="lg" onClick={resetStory}>
 					New Story
 				</Button>
-				<Button
-					size="lg"
-					onClick={handleDownload}
-				>
+				<Button size="lg" onClick={handleDownload}>
 					<Download className="mr-2 h-5 w-5" /> Download PDF
 				</Button>
 			</div>
