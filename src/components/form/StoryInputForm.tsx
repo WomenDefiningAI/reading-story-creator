@@ -16,8 +16,8 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { useStoryStore } from '@/store/storyStore';
 import type { ReadingLevel } from '@/types';
 import { Eye, EyeOff, Mic, MicOff } from 'lucide-react';
-import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 
 export function StoryInputForm() {
 	// Use Zustand store hooks to get/set form state
@@ -31,33 +31,38 @@ export function StoryInputForm() {
 	const startLoading = useStoryStore((state) => state.startLoading);
 	const setGeneratedStory = useStoryStore((state) => state.setGeneratedStory);
 
-	// State for API key visibility
+	// State for API key visibility and transcription
 	const [showApiKey, setShowApiKey] = useState(false);
+	const [liveTranscript, setLiveTranscript] = useState('');
+	const textPrefixRef = useRef(''); // Ref to store text before listening starts
 
 	// Speech Recognition Hook Integration
-	const {
-		isListening,
-		transcript,
-		startListening,
-		stopListening,
-		isAvailable,
-	} = useSpeechRecognition({
-		onTranscriptChange: (newTranscript) => {
-			// Update the form state directly as user speaks
-			setTopic(newTranscript);
-		},
-		// Optional: Add onError or onRecognitionEnd handlers if needed
-	});
-
-	// Sync textarea with final transcript when listening stops
-	useEffect(() => {
-		// Only update if not listening and transcript has a value
-		// and it's different from the current topic state
-		if (!isListening && transcript && transcript !== topic) {
-			setTopic(transcript);
-		}
-		// Add dependencies: isListening, transcript, setTopic, topic
-	}, [isListening, transcript, setTopic, topic]);
+	const { isListening, startListening, stopListening, isAvailable } =
+		useSpeechRecognition({
+			onTranscriptChange: (currentSessionTranscript) => {
+				// During listening, just update the live transcript display
+				// without changing the topic state
+				setLiveTranscript(currentSessionTranscript);
+			},
+			onRecognitionEnd: () => {
+				// Only update the actual topic when recording ends
+				if (liveTranscript.trim()) {
+					// If we have a prefix and new transcript
+					if (textPrefixRef.current.trim() && liveTranscript.trim()) {
+						setTopic(
+							`${textPrefixRef.current.trim()} ${liveTranscript.trim()}`,
+						);
+					} else {
+						// If we only have new transcript or only prefix
+						setTopic(
+							liveTranscript.trim() ||
+								textPrefixRef.current.trim(),
+						);
+					}
+				}
+				setLiveTranscript('');
+			},
+		});
 
 	const handleMicClick = () => {
 		if (!isAvailable) {
@@ -67,23 +72,24 @@ export function StoryInputForm() {
 		if (isListening) {
 			stopListening();
 		} else {
+			// Store current topic as the prefix before starting
+			textPrefixRef.current = topic;
+			setLiveTranscript(''); // Clear live transcript
 			startListening();
 		}
 	};
 
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		if (isListening) {
-			// Stop listening if form is submitted while recording
 			stopListening();
 		}
 		if (!apiKey) {
-			// TODO: Show proper validation/error message
 			alert('Please enter your Gemini API Key.');
 			return;
 		}
 		startLoading();
-		console.log('Submitting:', { topic, readingLevel }); // Don't log key
+		console.log('Submitting:', { topic, readingLevel });
 
 		// Simulate API call
 		setTimeout(() => {
@@ -172,17 +178,27 @@ export function StoryInputForm() {
 						<div className="relative">
 							<Textarea
 								id="topic"
-								value={topic}
-								onChange={(e) => setTopic(e.target.value)}
+								value={
+									isListening
+										? `${topic}${topic ? ' ' : ''}${liveTranscript}`
+										: topic
+								}
+								onChange={(e) => {
+									if (!isListening) {
+										// Only allow direct editing when not listening
+										setTopic(e.target.value);
+									}
+								}}
 								placeholder={
 									isListening
 										? 'Listening... speak now!'
 										: "e.g., A panda's first day of school, A bunny learning to share..."
 								}
-								className="pr-12"
+								className={`pr-12 ${isListening ? 'bg-amber-50' : ''}`}
 								rows={3}
 								required
 								disabled={isLoading}
+								readOnly={isListening}
 							/>
 							<Button
 								type="button"
@@ -190,7 +206,15 @@ export function StoryInputForm() {
 									isListening ? 'destructive' : 'outline'
 								}
 								size="icon"
-								className={`absolute bottom-2 right-2 ${isLoading || !isAvailable ? 'cursor-not-allowed' : ''}`}
+								className={`absolute bottom-2 right-2 ${
+									isLoading || !isAvailable
+										? 'cursor-not-allowed'
+										: ''
+								} ${
+									!isListening && isAvailable
+										? 'hover:bg-green-100 hover:text-green-600 hover:border-green-300'
+										: ''
+								}`}
 								aria-label={
 									isListening
 										? 'Stop listening'
@@ -218,7 +242,11 @@ export function StoryInputForm() {
 					<Button
 						type="submit"
 						disabled={isLoading || !topic.trim() || !apiKey?.trim()}
-						className="w-full"
+						className={`w-full ${
+							topic.trim() && apiKey?.trim() && readingLevel
+								? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+								: ''
+						}`}
 						size="lg"
 					>
 						{isLoading ? 'Generating...' : 'Create Story'}
