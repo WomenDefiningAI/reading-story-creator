@@ -4,7 +4,7 @@ import html2pdf from 'html2pdf.js';
 function createPanelElement(
 	panel: { text: string; imageData: string; altText: string },
 	panelNumber: number,
-): HTMLDivElement {
+): { element: HTMLDivElement; imageLoadPromise: Promise<void> } {
 	console.log(`Creating panel ${panelNumber}:`, {
 		hasText: !!panel.text,
 		imageDataLength: panel.imageData.length,
@@ -34,6 +34,17 @@ function createPanelElement(
 	`;
 
 	const img = document.createElement('img');
+	const imageLoadPromise = new Promise<void>((resolve, reject) => {
+		img.onload = () => {
+			console.log(`Image for panel ${panelNumber} loaded successfully`);
+			resolve();
+		};
+		img.onerror = (e) => {
+			console.error(`Error loading image for panel ${panelNumber}:`, e);
+			reject(e);
+		};
+	});
+
 	img.src = panel.imageData;
 	img.alt = panel.altText;
 	img.style.cssText = `
@@ -42,14 +53,6 @@ function createPanelElement(
 		height: 100%;
 		object-fit: contain;
 	`;
-
-	img.addEventListener('load', () => {
-		console.log(`Image for panel ${panelNumber} loaded successfully`);
-	});
-
-	img.addEventListener('error', (e) => {
-		console.error(`Error loading image for panel ${panelNumber}:`, e);
-	});
 
 	imageContainer.appendChild(img);
 	panelDiv.appendChild(imageContainer);
@@ -69,10 +72,13 @@ function createPanelElement(
 	text.textContent = panel.text;
 
 	panelDiv.appendChild(text);
-	return panelDiv;
+	return { element: panelDiv, imageLoadPromise };
 }
 
-function createPDFContainer(story: StoryData): HTMLDivElement {
+function createPDFContainer(story: StoryData): {
+	container: HTMLDivElement;
+	imageLoadPromises: Promise<void>[];
+} {
 	console.log('Creating PDF container with story:', {
 		title: story.title,
 		numberOfPanels: story.panels.length,
@@ -116,20 +122,25 @@ function createPDFContainer(story: StoryData): HTMLDivElement {
 	`;
 
 	// Add all panels to the grid
+	const imageLoadPromises: Promise<void>[] = [];
 	story.panels.forEach((panel, index) => {
-		const panelElement = createPanelElement(panel, index + 1);
-		gridContainer.appendChild(panelElement);
+		const { element, imageLoadPromise } = createPanelElement(
+			panel,
+			index + 1,
+		);
+		gridContainer.appendChild(element);
+		imageLoadPromises.push(imageLoadPromise);
 	});
 
 	container.appendChild(gridContainer);
-	return container;
+	return { container, imageLoadPromises };
 }
 
 export async function generatePDF(story: StoryData): Promise<void> {
 	console.log('Starting PDF generation for story:', story.title);
 
 	// Create a new container with all panels
-	const container = createPDFContainer(story);
+	const { container, imageLoadPromises } = createPDFContainer(story);
 
 	// Configure PDF options
 	const opt = {
@@ -140,13 +151,26 @@ export async function generatePDF(story: StoryData): Promise<void> {
 			useCORS: true,
 			backgroundColor: '#ffffff',
 			logging: true,
-			onclone: (doc) => {
-				console.log('Document cloned for PDF generation');
+			windowWidth: 816, // Match container width
+			windowHeight: 1056, // Match container height
+			onclone: (doc: Document) => {
 				const clonedContainer = doc.body.firstChild as HTMLElement;
+				// Force dimensions on the cloned container
+				if (clonedContainer) {
+					clonedContainer.style.width = '8.5in';
+					clonedContainer.style.height = '11in';
+					clonedContainer.style.padding = '0.5in';
+					// Force display mode
+					clonedContainer.style.display = 'block';
+					// Force visibility
+					clonedContainer.style.visibility = 'visible';
+					clonedContainer.style.position = 'relative';
+				}
+				console.log('Document cloned for PDF generation');
 				console.log('Cloned container dimensions:', {
-					width: clonedContainer.offsetWidth,
-					height: clonedContainer.offsetHeight,
-					children: clonedContainer.children.length,
+					width: clonedContainer?.offsetWidth,
+					height: clonedContainer?.offsetHeight,
+					children: clonedContainer?.children.length,
 				});
 			},
 		},
@@ -156,6 +180,7 @@ export async function generatePDF(story: StoryData): Promise<void> {
 			orientation: 'portrait' as const,
 		},
 		pagebreak: { mode: 'avoid-all' },
+		margin: 0,
 	};
 
 	try {
@@ -166,6 +191,14 @@ export async function generatePDF(story: StoryData): Promise<void> {
 			height: container.offsetHeight,
 			children: container.children.length,
 		});
+
+		// Wait for all images to load before generating PDF
+		console.log('Waiting for all images to load...');
+		await Promise.all(imageLoadPromises);
+		console.log('All images loaded successfully');
+
+		// Add a small delay to ensure layout is complete
+		await new Promise((resolve) => setTimeout(resolve, 100));
 
 		// Generate PDF
 		console.log('Starting html2pdf conversion...');
