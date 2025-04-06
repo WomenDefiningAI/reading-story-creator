@@ -13,26 +13,23 @@ function createPanelElement(
 
 	const panelDiv = document.createElement('div');
 	panelDiv.style.cssText = `
-		all: initial;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		margin-bottom: 2rem;
-		padding: 1rem;
 		background-color: #ffffff;
 		font-family: Comic Sans MS, cursive, sans-serif;
+		padding: 0.5rem;
+		height: 100%;
 	`;
 
 	// Image container with aspect ratio preservation
 	const imageContainer = document.createElement('div');
 	imageContainer.style.cssText = `
-		all: initial;
 		display: block;
 		width: 100%;
-		max-width: 7.5in;
 		aspect-ratio: 4/3;
 		position: relative;
-		margin-bottom: 1rem;
+		margin-bottom: 0.5rem;
 		background-color: #f3f4f6;
 	`;
 
@@ -40,14 +37,12 @@ function createPanelElement(
 	img.src = panel.imageData;
 	img.alt = panel.altText;
 	img.style.cssText = `
-		all: initial;
 		display: block;
 		width: 100%;
 		height: 100%;
 		object-fit: contain;
 	`;
 
-	// Add load event listener to debug image loading
 	img.addEventListener('load', () => {
 		console.log(`Image for panel ${panelNumber} loaded successfully`);
 	});
@@ -62,16 +57,14 @@ function createPanelElement(
 	// Text content
 	const text = document.createElement('p');
 	text.style.cssText = `
-		all: initial;
 		display: block;
 		font-family: Comic Sans MS, cursive, sans-serif;
-		font-size: 18px;
-		line-height: 1.5;
+		font-size: 14px;
+		line-height: 1.4;
 		margin: 0;
 		text-align: center;
-		max-width: 7.5in;
 		color: #1f2937;
-		padding: 1rem;
+		padding: 0.5rem;
 	`;
 	text.textContent = panel.text;
 
@@ -87,39 +80,48 @@ function createPDFContainer(story: StoryData): HTMLDivElement {
 
 	const container = document.createElement('div');
 	container.style.cssText = `
-		all: initial;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding: 1in 0.5in;
+		padding: 0.5in;
 		background-color: #ffffff;
 		font-family: Comic Sans MS, cursive, sans-serif;
 		width: 8.5in;
-		min-height: 11in;
+		height: 11in;
 	`;
 
 	// Add title
 	const title = document.createElement('h1');
 	title.style.cssText = `
-		all: initial;
 		display: block;
 		font-family: Comic Sans MS, cursive, sans-serif;
-		font-size: 32px;
+		font-size: 24px;
 		font-weight: bold;
 		text-align: center;
-		margin-bottom: 2rem;
+		margin: 0 0 1rem 0;
 		color: #1f2937;
 		width: 100%;
 	`;
 	title.textContent = story.title;
 	container.appendChild(title);
 
-	// Add all panels
+	// Create grid container for panels
+	const gridContainer = document.createElement('div');
+	gridContainer.style.cssText = `
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		grid-gap: 1rem;
+		width: 100%;
+		height: calc(100% - 3rem);
+	`;
+
+	// Add all panels to the grid
 	story.panels.forEach((panel, index) => {
 		const panelElement = createPanelElement(panel, index + 1);
-		container.appendChild(panelElement);
+		gridContainer.appendChild(panelElement);
 	});
 
+	container.appendChild(gridContainer);
 	return container;
 }
 
@@ -137,7 +139,7 @@ export async function generatePDF(story: StoryData): Promise<void> {
 			scale: 2,
 			useCORS: true,
 			backgroundColor: '#ffffff',
-			logging: true, // Enable html2canvas logging
+			logging: true,
 			onclone: (doc) => {
 				console.log('Document cloned for PDF generation');
 				const clonedContainer = doc.body.firstChild as HTMLElement;
