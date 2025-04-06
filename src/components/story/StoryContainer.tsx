@@ -19,22 +19,17 @@ function StoryPanel({ panel }: { panel: StoryPanelData }) {
 	return (
 		<Card className="overflow-hidden w-full shadow-lg">
 			<CardContent className="p-0">
-				{' '}
-				{/* Remove padding for image */}
-				<div className="relative w-full aspect-[4/3] bg-gray-100">
+				<div className="relative w-full aspect-[4/3] bg-[#f3f4f6]">
 					<Image
-						src={panel.imageData} // This now supports base64 data URLs from Gemini
+						src={panel.imageData}
 						alt={panel.altText}
-						fill // Use fill instead of layout="fill"
-						style={{ objectFit: 'contain' }} // Use style instead of objectFit
-						unoptimized={true} // Necessary for base64 image data 
+						fill
+						style={{ objectFit: 'contain' }}
+						unoptimized={true}
 					/>
 				</div>
-				<div className="p-6 bg-white">
-					{' '}
-					{/* Changed background and padding */}
-					{/* TODO: Use specified story font */}
-					<p className="text-xl text-gray-700 font-sans text-center">
+				<div className="p-6 bg-[#ffffff]">
+					<p className="text-xl text-[#374151] font-sans text-center">
 						{panel.text}
 					</p>
 				</div>
@@ -68,18 +63,24 @@ function StoryActions() {
 		}
 	};
 
-	const handleDownload = () => {
-		// TODO: Implement actual PDF generation in pdfService
-		alert('Download PDF - Not implemented yet');
+	const handleDownload = async () => {
+		if (!generatedStory) return;
+		
+		try {
+			const { generatePDF } = await import('@/services/pdfService');
+			await generatePDF(generatedStory);
+		} catch (error) {
+			console.error('Error generating PDF:', error);
+			// TODO: Add proper error handling UI
+			alert('Failed to generate PDF. Please try again.');
+		}
 	};
 
 	return (
 		<div className="flex flex-col items-center justify-center h-full lg:items-start">
-			{/* Title */}
-			<h1 className="text-4xl font-bold text-center mb-8 text-gray-800 lg:text-left">
+			<h1 className="text-4xl font-bold text-center mb-8 text-[#1f2937] lg:text-left">
 				{generatedStory.title}
 			</h1>
-			{/* Navigation Arrows and Page Indicator */}
 			<div className="flex justify-center items-center mb-8 w-full lg:justify-start">
 				<Button
 					variant="outline"
@@ -91,7 +92,7 @@ function StoryActions() {
 				>
 					<ChevronLeft className="h-6 w-6" />
 				</Button>
-				<span className="text-lg font-medium text-gray-600 w-24 text-center">
+				<span className="text-lg font-medium text-[#4b5563] w-24 text-center">
 					Page {currentPanelIndex + 1} of {totalPanels}
 				</span>
 				<Button
@@ -105,17 +106,16 @@ function StoryActions() {
 					<ChevronRight className="h-6 w-6" />
 				</Button>
 			</div>
-			{/* Action Buttons */}
 			<div className="flex flex-col gap-4 w-full max-w-xs">
 				<Button
 					variant="outline"
-					size="lg" // Make buttons larger
+					size="lg"
 					onClick={resetStory}
 				>
 					New Story
 				</Button>
 				<Button
-					size="lg" // Make buttons larger
+					size="lg"
 					onClick={handleDownload}
 				>
 					<Download className="mr-2 h-5 w-5" /> Download PDF
@@ -134,11 +134,11 @@ export function StoryContainer() {
 	if (isLoading) {
 		return (
 			<div className="flex flex-col items-center justify-center text-center min-h-screen p-4">
-				<Loader2 className="h-12 w-12 animate-spin text-indigo-600 mb-6" />
-				<p className="text-xl font-medium text-gray-700">
+				<Loader2 className="h-12 w-12 animate-spin text-[#4f46e5] mb-6" />
+				<p className="text-xl font-medium text-[#374151]">
 					Generating your amazing story...
 				</p>
-				<p className="text-md text-gray-500">
+				<p className="text-md text-[#6b7280]">
 					This might take a moment.
 				</p>
 			</div>
@@ -148,13 +148,12 @@ export function StoryContainer() {
 	if (error) {
 		return (
 			<div className="flex flex-col items-center justify-center text-center min-h-screen p-4">
-				<div className="text-red-600 p-8 border-2 border-red-200 rounded-lg bg-red-50 flex flex-col items-center shadow-md max-w-md">
-					<AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+				<div className="text-[#dc2626] p-8 border-2 border-[#fecaca] rounded-lg bg-[#fef2f2] flex flex-col items-center shadow-md max-w-md">
+					<AlertCircle className="h-12 w-12 text-[#ef4444] mb-4" />
 					<p className="text-xl font-semibold mb-3">
 						Oops! Error Generating Story
 					</p>
 					<p className="text-base">{error}</p>
-					{/* Consider adding a retry/back button here */}
 				</div>
 			</div>
 		);
@@ -170,15 +169,13 @@ export function StoryContainer() {
 	return (
 		<div
 			id="story-container"
-			className="w-full max-w-6xl mx-auto p-4 md:p-8 lg:p-12"
+			className="w-full max-w-6xl mx-auto p-4 md:p-8 lg:p-12 bg-[#ffffff]"
 		>
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-				{/* Left Column: Title, Navigation, Actions */}
 				<div className="order-2 lg:order-1">
 					<StoryActions />
 				</div>
 
-				{/* Right Column: Story Panel */}
 				<div className="order-1 lg:order-2">
 					{currentPanel && (
 						<StoryPanel
