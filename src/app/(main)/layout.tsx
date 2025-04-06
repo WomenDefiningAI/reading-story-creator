@@ -1,4 +1,4 @@
-import type React from "react";
+import type React from 'react';
 
 // This layout applies specifically to pages within the (main) route group.
 export default function MainLayout({

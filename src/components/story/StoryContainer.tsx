@@ -1,21 +1,26 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useStoryStore } from '@/store/storyStore';
+import type { StoryPanelData } from '@/types';
 import {
-	Card,
-	CardContent,
-} from "@/components/ui/card"
-import { useStoryStore } from "@/store/storyStore";
-import type { StoryPanelData } from "@/types";
-import { AlertCircle, ChevronLeft, ChevronRight, Download, Loader2 } from 'lucide-react'; // Import icons
-import Image from "next/image"; // Import Next.js Image component
-import React from "react";
+	AlertCircle,
+	ChevronLeft,
+	ChevronRight,
+	Download,
+	Loader2,
+} from 'lucide-react'; // Import icons
+import Image from 'next/image'; // Import Next.js Image component
+import React from 'react';
 
 // Updated StoryPanel component using Card
 function StoryPanel({ panel }: { panel: StoryPanelData }) {
 	return (
 		<Card className="overflow-hidden w-full shadow-lg">
-			<CardContent className="p-0"> {/* Remove padding for image */}
+			<CardContent className="p-0">
+				{' '}
+				{/* Remove padding for image */}
 				<div className="relative w-full aspect-[4/3] bg-gray-100">
 					<Image
 						src={panel.imageData} // Using placeholder URLs for now
@@ -25,9 +30,13 @@ function StoryPanel({ panel }: { panel: StoryPanelData }) {
 						unoptimized={true} // Necessary for placeholder URLs or non-standard sources
 					/>
 				</div>
-				<div className="p-6 bg-white"> {/* Changed background and padding */}
+				<div className="p-6 bg-white">
+					{' '}
+					{/* Changed background and padding */}
 					{/* TODO: Use specified story font */}
-					<p className="text-xl text-gray-700 font-sans text-center">{panel.text}</p>
+					<p className="text-xl text-gray-700 font-sans text-center">
+						{panel.text}
+					</p>
 				</div>
 			</CardContent>
 		</Card>
@@ -38,7 +47,9 @@ function StoryPanel({ panel }: { panel: StoryPanelData }) {
 function StoryActions() {
 	const generatedStory = useStoryStore((state) => state.generatedStory);
 	const currentPanelIndex = useStoryStore((state) => state.currentPanelIndex);
-	const setCurrentPanelIndex = useStoryStore((state) => state.setCurrentPanelIndex);
+	const setCurrentPanelIndex = useStoryStore(
+		(state) => state.setCurrentPanelIndex,
+	);
 	const resetStory = useStoryStore((state) => state.resetStory);
 
 	if (!generatedStory?.panels?.length) return null;
@@ -59,7 +70,7 @@ function StoryActions() {
 
 	const handleDownload = () => {
 		// TODO: Implement actual PDF generation in pdfService
-		alert("Download PDF - Not implemented yet");
+		alert('Download PDF - Not implemented yet');
 	};
 
 	return (
@@ -70,10 +81,10 @@ function StoryActions() {
 			</h1>
 			{/* Navigation Arrows and Page Indicator */}
 			<div className="flex justify-center items-center mb-8 w-full lg:justify-start">
-				<Button 
+				<Button
 					variant="outline"
 					size="icon"
-					onClick={handlePrev} 
+					onClick={handlePrev}
 					disabled={currentPanelIndex === 0}
 					aria-label="Previous Panel"
 					className="mr-4"
@@ -81,12 +92,12 @@ function StoryActions() {
 					<ChevronLeft className="h-6 w-6" />
 				</Button>
 				<span className="text-lg font-medium text-gray-600 w-24 text-center">
-					Page {currentPanelIndex + 1} of {totalPanels} 
+					Page {currentPanelIndex + 1} of {totalPanels}
 				</span>
-				<Button 
+				<Button
 					variant="outline"
 					size="icon"
-					onClick={handleNext} 
+					onClick={handleNext}
 					disabled={currentPanelIndex === totalPanels - 1}
 					aria-label="Next Panel"
 					className="ml-4"
@@ -96,11 +107,11 @@ function StoryActions() {
 			</div>
 			{/* Action Buttons */}
 			<div className="flex flex-col gap-4 w-full max-w-xs">
-				 <Button
+				<Button
 					variant="outline"
 					size="lg" // Make buttons larger
 					onClick={resetStory}
-				 >
+				>
 					New Story
 				</Button>
 				<Button
@@ -124,8 +135,12 @@ export function StoryContainer() {
 		return (
 			<div className="flex flex-col items-center justify-center text-center min-h-screen p-4">
 				<Loader2 className="h-12 w-12 animate-spin text-indigo-600 mb-6" />
-				<p className="text-xl font-medium text-gray-700">Generating your amazing story...</p>
-				<p className="text-md text-gray-500">This might take a moment.</p>
+				<p className="text-xl font-medium text-gray-700">
+					Generating your amazing story...
+				</p>
+				<p className="text-md text-gray-500">
+					This might take a moment.
+				</p>
 			</div>
 		);
 	}
@@ -135,7 +150,9 @@ export function StoryContainer() {
 			<div className="flex flex-col items-center justify-center text-center min-h-screen p-4">
 				<div className="text-red-600 p-8 border-2 border-red-200 rounded-lg bg-red-50 flex flex-col items-center shadow-md max-w-md">
 					<AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-					<p className="text-xl font-semibold mb-3">Oops! Error Generating Story</p>
+					<p className="text-xl font-semibold mb-3">
+						Oops! Error Generating Story
+					</p>
 					<p className="text-base">{error}</p>
 					{/* Consider adding a retry/back button here */}
 				</div>
@@ -144,26 +161,29 @@ export function StoryContainer() {
 	}
 
 	if (!generatedStory) {
-		return null; 
+		return null;
 	}
 
 	const currentPanel = generatedStory.panels[currentPanelIndex];
 
 	// Two-column layout for the story view
 	return (
-		<div id="story-container" className="w-full max-w-6xl mx-auto p-4 md:p-8 lg:p-12">
+		<div
+			id="story-container"
+			className="w-full max-w-6xl mx-auto p-4 md:p-8 lg:p-12"
+		>
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 				{/* Left Column: Title, Navigation, Actions */}
 				<div className="order-2 lg:order-1">
-					<StoryActions /> 
+					<StoryActions />
 				</div>
 
 				{/* Right Column: Story Panel */}
 				<div className="order-1 lg:order-2">
 					{currentPanel && (
-						<StoryPanel 
-							key={currentPanelIndex} 
-							panel={currentPanel} 
+						<StoryPanel
+							key={currentPanelIndex}
+							panel={currentPanel}
 						/>
 					)}
 				</div>

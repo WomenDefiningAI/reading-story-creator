@@ -11,4 +11,4 @@ export interface StoryData {
 	panels: StoryPanelData[];
 }
 
-export type ReadingLevel = "kindergarten" | "firstGrade";
+export type ReadingLevel = 'kindergarten' | 'firstGrade';

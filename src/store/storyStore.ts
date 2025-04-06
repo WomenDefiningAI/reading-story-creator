@@ -1,12 +1,11 @@
-import type { ReadingLevel, StoryData } from "@/types";
-import { type StateCreator, create } from "zustand";
+import type { ReadingLevel, StoryData } from '@/types';
+import { type StateCreator, create } from 'zustand';
 
 export type AppState = {
 	// Form State
 	topic: string;
 	readingLevel: ReadingLevel;
 	apiKey: string | null;
-	isApiKeySaved: boolean;
 
 	// Generation State
 	isLoading: boolean;
@@ -21,7 +20,6 @@ export type AppActions = {
 	setTopic: (topic: string) => void;
 	setReadingLevel: (level: ReadingLevel) => void;
 	setApiKey: (key: string | null) => void;
-	setIsApiKeySaved: (saved: boolean) => void;
 	startLoading: () => void;
 	setGeneratedStory: (
 		story: StoryData | null,
@@ -32,10 +30,9 @@ export type AppActions = {
 };
 
 const initialState: AppState = {
-	topic: "",
-	readingLevel: "kindergarten",
+	topic: '',
+	readingLevel: 'kindergarten',
 	apiKey: null,
-	isApiKeySaved: false,
 	isLoading: false,
 	error: null,
 	generatedStory: null,
@@ -49,7 +46,6 @@ const storeCreator: StateCreator<AppState & AppActions> = (set) => ({
 	setTopic: (topic) => set({ topic }),
 	setReadingLevel: (readingLevel) => set({ readingLevel }),
 	setApiKey: (apiKey) => set({ apiKey }),
-	setIsApiKeySaved: (isApiKeySaved) => set({ isApiKeySaved }),
 
 	startLoading: () =>
 		set({
@@ -64,7 +60,11 @@ const storeCreator: StateCreator<AppState & AppActions> = (set) => ({
 			generatedStory: story,
 			isLoading: false,
 			error:
-				error instanceof Error ? error.message : error ? String(error) : null,
+				error instanceof Error
+					? error.message
+					: error
+						? String(error)
+						: null,
 		}),
 
 	setCurrentPanelIndex: (currentPanelIndex) => set({ currentPanelIndex }),
@@ -73,7 +73,6 @@ const storeCreator: StateCreator<AppState & AppActions> = (set) => ({
 		set((state) => ({
 			...initialState,
 			apiKey: state.apiKey,
-			isApiKeySaved: state.isApiKeySaved,
 		})),
 });
 
