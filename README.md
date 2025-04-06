@@ -4,12 +4,20 @@ This is a [Next.js](https://nextjs.org/) web application designed to help parent
 
 ## Core Functionality (MVP)
 
-*   **Story Generation:** Creates custom 6-panel stories with illustrations based on a user-provided topic/character and selected reading level (K or 1st grade).
+*   **Story Generation:** Creates custom 5-panel stories with illustrations based on a user-provided topic/character and selected reading level (K or 1st grade).
 *   **Input:** Accepts text input for the story idea. Voice input via Web Speech API is planned.
 *   **API Integration:** Uses the Google Gemini API for generating story text and illustrations (requires user-provided API key).
 *   **Interface:** Simple, mobile-friendly UI built with Shadcn components.
-*   **Output:** Displays the story panel-by-panel and allows downloading as a printable PDF (2 panels per page).
-*   **Technology:** Next.js (App Router), React, TypeScript, Tailwind CSS, Zustand, Client-Side APIs (Gemini, Web Speech), html2pdf.js.
+*   **Output:** 
+    - Displays the story panel-by-panel with consistent image aspect ratios
+    - Generates a single-page printable PDF with all panels in a 2-column grid layout
+    - High-quality image rendering (2x scale) for crisp prints
+    - Comic Sans MS font for child-friendly reading
+*   **Technology:** 
+    - Next.js (App Router), React, TypeScript, Tailwind CSS
+    - Zustand for state management
+    - Client-Side APIs (Gemini Pro for text, Gemini Vision Pro for images)
+    - html2pdf.js for PDF generation with proper image handling
 *   **Limitations:** No user accounts, no persistent storage beyond API key in local storage, standalone story experiences.
 
 ## Getting Started
@@ -37,21 +45,39 @@ This is a [Next.js](https://nextjs.org/) web application designed to help parent
     npm run dev
     ```
 6.  **Open your browser:** Navigate to [http://localhost:3000](http://localhost:3000).
-7.  **Usage:** Enter your Gemini API key, select a reading level, type a story topic, and click "Create Story".
+7.  **Usage:** 
+    - Enter your Gemini API key
+    - Select a reading level
+    - Type a story topic (e.g., "Pink Bear Goes to School")
+    - Click "Create Story"
+    - Once generated, click "Download PDF" to save a print-ready version
 
 ## Project Structure
 
 *   `src/app/`: Main application routes and layouts (Next.js App Router).
 *   `src/components/`: Reusable React components (UI, form, story elements).
 *   `src/lib/`: Utility functions, constants (e.g., vocabulary lists).
-*   `src/services/`: Modules for interacting with external APIs (Gemini, PDF generation).
+*   `src/services/`: 
+    - `geminiService.ts`: Handles story generation with Gemini API
+    - `pdfService.ts`: Manages PDF creation with proper image handling
 *   `src/store/`: Zustand state management store.
 *   `src/hooks/`: Custom React hooks (e.g., for speech recognition).
 *   `src/types/`: TypeScript type definitions.
 *   `public/`: Static assets (images, fonts).
 *   `docs/`: Project documentation (PRD, Tech Spec).
 
-(This README is based on the initial MVP plan. Features and implementation details may evolve.)
+## Recent Updates
+
+*   Transitioned from 6-panel to 5-panel story format for better pacing
+*   Enhanced PDF generation:
+    - Single-page layout with 2-column grid
+    - Consistent image aspect ratios (4:3)
+    - Improved text formatting with Comic Sans MS
+    - High-quality image rendering for printing
+*   Improved error handling for API calls and PDF generation
+*   Added loading states and progress feedback
+
+(This README reflects the current MVP implementation. Features and implementation details continue to evolve.)
 
 ## Learn More
 
