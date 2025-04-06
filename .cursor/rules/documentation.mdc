@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Always refer to project docs for context on the build before scoping features and writing code
+
+Docs are [MVP_PRD.md](mdc:docs/MVP_PRD.md) and [MVP_TechSpec.md](mdc:docs/MVP_TechSpec.md)
