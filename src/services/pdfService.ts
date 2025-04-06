@@ -18,8 +18,7 @@ function createPanelElement(
 		align-items: center;
 		background-color: #ffffff;
 		font-family: Comic Sans MS, cursive, sans-serif;
-		padding: 0.5rem;
-		height: 100%;
+		padding: 0.25rem;
 	`;
 
 	// Image container with aspect ratio preservation
@@ -29,7 +28,7 @@ function createPanelElement(
 		width: 100%;
 		aspect-ratio: 4/3;
 		position: relative;
-		margin-bottom: 0.5rem;
+		margin-bottom: 0.25rem;
 		background-color: #f3f4f6;
 	`;
 
@@ -93,7 +92,7 @@ function createPDFContainer(story: StoryData): {
 		background-color: #ffffff;
 		font-family: Comic Sans MS, cursive, sans-serif;
 		width: 8.5in;
-		height: 11in;
+		min-height: 11in;
 	`;
 
 	// Add title
@@ -104,7 +103,7 @@ function createPDFContainer(story: StoryData): {
 		font-size: 24px;
 		font-weight: bold;
 		text-align: center;
-		margin: 0 0 1rem 0;
+		margin: 0 0 0.5rem 0;
 		color: #1f2937;
 		width: 100%;
 	`;
@@ -116,9 +115,8 @@ function createPDFContainer(story: StoryData): {
 	gridContainer.style.cssText = `
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		grid-gap: 1rem;
+		grid-gap: 0.5rem;
 		width: 100%;
-		height: calc(100% - 3rem);
 	`;
 
 	// Add all panels to the grid
