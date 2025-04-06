@@ -1,7 +1,5 @@
 'use client';
-
 import { useCallback, useEffect, useRef, useState } from 'react';
-
 // Use built-in types for Web Speech API (usually provided by @types/dom-speech-recognition)
 
 // Define options for the hook
@@ -20,6 +18,8 @@ export function useSpeechRecognition({
 	const [currentTranscript, setCurrentTranscript] = useState(''); // Renamed for clarity
 	const [isAvailable, setIsAvailable] = useState(false);
 	const recognitionRef = useRef<SpeechRecognition | null>(null);
+	const finalTranscriptRef = useRef(''); // Keep track of finalized segments
+	const forcefulStopRef = useRef(false); // Track when user explicitly stops
 
 	useEffect(() => {
 		// Check for API availability on the window object
@@ -42,10 +42,11 @@ export function useSpeechRecognition({
 		}
 
 		// Cleanup function to abort recognition if component unmounts
+		const recognition = recognitionRef.current;
 		return () => {
-			recognitionRef.current?.abort();
+			recognition?.abort();
 		};
-	}, []); // Run only on mount
+	}, []);
 
 	useEffect(() => {
 		const recognition = recognitionRef.current;
@@ -53,22 +54,30 @@ export function useSpeechRecognition({
 		if (!recognition) return;
 
 		const handleResult = (event: SpeechRecognitionEvent) => {
-			let finalTranscript = '';
 			let interimTranscript = '';
 
 			for (let i = event.resultIndex; i < event.results.length; ++i) {
 				const transcriptPart = event.results[i][0].transcript;
 				if (event.results[i].isFinal) {
-					finalTranscript += transcriptPart;
+					// Accumulate final results in our ref
+					finalTranscriptRef.current += ` ${transcriptPart}`;
 				} else {
 					interimTranscript += transcriptPart;
 				}
 			}
 
-			// Combine final and interim results for live feedback
-			const fullTranscript = finalTranscript + interimTranscript;
+			// Trim any extra spaces
+			finalTranscriptRef.current = finalTranscriptRef.current.trim();
+
+			// Combine final accumulated results with current interim results
+			const fullTranscript =
+				`${finalTranscriptRef.current} ${interimTranscript}`.trim();
 			setCurrentTranscript(fullTranscript);
-			onTranscriptChange?.(fullTranscript);
+
+			// Only notify if we have something meaningful
+			if (fullTranscript) {
+				onTranscriptChange?.(fullTranscript);
+			}
 		};
 
 		const handleError = (event: SpeechRecognitionErrorEvent) => {
@@ -77,8 +86,12 @@ export function useSpeechRecognition({
 				event.error,
 				event.message,
 			);
-			setIsListening(false); // Stop listening state on error
-			onError?.(event.error, event.message);
+
+			// Only end the session on fatal errors, not on no-speech
+			if (event.error !== 'no-speech') {
+				setIsListening(false);
+				onError?.(event.error, event.message);
+			}
 		};
 
 		const handleStart = () => {
@@ -86,8 +99,22 @@ export function useSpeechRecognition({
 		};
 
 		const handleEnd = () => {
+			// If we're still supposed to be listening AND not forcefully stopped,
+			// restart the recognition
+			if (isListening && recognition && !forcefulStopRef.current) {
+				try {
+					recognition.start();
+					return; // Don't set isListening to false if we're restarting
+				} catch (error) {
+					console.error('Failed to restart after pause:', error);
+					// Continue to end handling if restart fails
+				}
+			}
+
+			// Reset the forceful stop flag when we actually end
+			forcefulStopRef.current = false;
+
 			setIsListening(false);
-			// setCurrentTranscript(''); // Decide if transcript should clear on stop
 			onRecognitionEnd?.();
 		};
 
@@ -104,12 +131,14 @@ export function useSpeechRecognition({
 			recognition.removeEventListener('start', handleStart);
 			recognition.removeEventListener('end', handleEnd);
 		};
-	}, [onTranscriptChange, onRecognitionEnd, onError]); // Re-attach if callbacks change
+	}, [onTranscriptChange, onRecognitionEnd, onError, isListening]);
 
 	const startListening = useCallback(() => {
 		const recognition = recognitionRef.current;
 		if (recognition && !isListening) {
-			setCurrentTranscript(''); // Clear previous transcript before starting
+			forcefulStopRef.current = false; // Reset the forceful stop flag
+			setCurrentTranscript(''); // Clear current transcript display
+			finalTranscriptRef.current = ''; // Reset accumulated transcript
 			try {
 				recognition.start();
 			} catch (error) {
@@ -131,14 +160,15 @@ export function useSpeechRecognition({
 	const stopListening = useCallback(() => {
 		const recognition = recognitionRef.current;
 		if (recognition && isListening) {
+			forcefulStopRef.current = true; // Mark this as a forceful stop
+			setIsListening(false); // Set this immediately to prevent auto-restart
 			recognition.stop();
-			// onend listener handles setting isListening to false
 		}
 	}, [isListening]);
 
 	return {
 		isListening,
-		transcript: currentTranscript, // Expose the latest transcript
+		transcript: currentTranscript,
 		isAvailable,
 		startListening,
 		stopListening,

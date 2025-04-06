@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Where possible do not use useEffect in the code
+this is generally not good react practice, and we want to use this ONLY when absolutely necessary
