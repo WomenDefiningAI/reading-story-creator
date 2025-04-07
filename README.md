@@ -4,11 +4,12 @@ Try it live: [reading-story-creator.vercel.app](https://reading-story-creator.ve
 
 This is a Next.js web application designed to help parents and educators create simple, illustrated stories for young children (Kindergarten, 1st Grade, and 2nd Grade reading levels).
 
+**Main input form**
 ![Input Page Screenshot](public/input-page.png)
-_Main input form_
 
+**Example generated story panel**
 ![Story Panel Screenshot](public/story-panel.png)
-_Example generated story panel_
+
 
 ## Core Functionality
 
