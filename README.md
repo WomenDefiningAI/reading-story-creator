@@ -6,12 +6,12 @@ This is a Next.js web application designed to help parents and educators create 
 
 **Main input form**
 
-![Input Page Screenshot](public/images/input-page.png)
+![Input Page Screenshot](public/input-page.png)
 
 
 **Example generated story panel**
 
-![Story Panel Screenshot](public/images/story-panel.png)
+![Story Panel Screenshot](public/story-panel.png)
 
 
 
