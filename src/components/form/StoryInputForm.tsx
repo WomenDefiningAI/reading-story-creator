@@ -211,21 +211,23 @@ export function StoryInputForm() {
 					<div className="space-y-2">
 						<Label htmlFor="readingLevel">Reading Level</Label>
 						<Select
-							value={readingLevel}
 							onValueChange={(value) =>
 								setReadingLevel(value as ReadingLevel)
 							}
-							disabled={isLoading}
+							defaultValue={readingLevel}
 						>
-							<SelectTrigger id="readingLevel">
-								<SelectValue placeholder="Select level" />
+							<SelectTrigger id="readingLevel" className="w-full">
+								<SelectValue placeholder="Select reading level" />
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="kindergarten">
 									Kindergarten
 								</SelectItem>
 								<SelectItem value="firstGrade">
-									1st Grade
+									First Grade
+								</SelectItem>
+								<SelectItem value="secondGrade">
+									Second Grade
 								</SelectItem>
 							</SelectContent>
 						</Select>
