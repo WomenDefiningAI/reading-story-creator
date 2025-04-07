@@ -2,6 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -16,7 +24,7 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { GeminiService } from '@/services/geminiService';
 import { useStoryStore } from '@/store/storyStore';
 import type { ReadingLevel } from '@/types';
-import { Eye, EyeOff, Mic, MicOff } from 'lucide-react';
+import { Eye, EyeOff, HelpCircle, Mic, MicOff } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 
@@ -140,7 +148,36 @@ export function StoryInputForm() {
 				<form onSubmit={handleSubmit} className="space-y-6">
 					{/* API Key Input */}
 					<div className="space-y-2">
-						<Label htmlFor="apiKey">Gemini API Key</Label>
+						<div className="flex items-center gap-2">
+							<Label htmlFor="apiKey">Gemini API Key</Label>
+							<Dialog>
+								<DialogTrigger asChild>
+									<HelpCircle className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" />
+								</DialogTrigger>
+								<DialogContent className="sm:max-w-[425px]">
+									<DialogHeader>
+										<DialogTitle>
+											Getting Your Gemini API Key
+										</DialogTitle>
+									</DialogHeader>
+									<DialogDescription className="py-4">
+										Generate your Gemini API Key by visiting{' '}
+										<a
+											href="https://aistudio.google.com/"
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline text-indigo-600 hover:text-indigo-800"
+										>
+											Google AI Studio
+										</a>
+										. Look for the blue &apos;Get API
+										Key&apos; button on the left side panel.
+										You may need to create a new Google
+										Cloud project to implement this.
+									</DialogDescription>
+								</DialogContent>
+							</Dialog>
+						</div>
 						<div className="flex items-center gap-2">
 							<Input
 								id="apiKey"
