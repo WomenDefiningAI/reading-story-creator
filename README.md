@@ -1,31 +1,35 @@
 # Reading Story Creator
 
-This is a [Next.js](https://nextjs.org/) web application designed to help parents create simple, illustrated stories for young children (Kindergarten / 1st Grade reading levels).
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FWomenDefiningAI%2Freading-story-creator)
 
-## Core Functionality (MVP)
+Try it live: [reading-story-creator.vercel.app](https://reading-story-creator.vercel.app/)
 
-*   **Story Generation:** Creates custom 5-panel stories with illustrations based on a user-provided topic/character and selected reading level (K or 1st grade).
-*   **Input:** Accepts text input for the story idea. Voice input via Web Speech API is planned.
-*   **API Integration:** Uses the Google Gemini API for generating story text and illustrations (requires user-provided API key).
-*   **Interface:** Simple, mobile-friendly UI built with Shadcn components.
-*   **Output:** 
-    - Displays the story panel-by-panel with consistent image aspect ratios
-    - Generates a single-page printable PDF with all panels in a 2-column grid layout
-    - High-quality image rendering (2x scale) for crisp prints
-    - Comic Sans MS font for child-friendly reading
-*   **Technology:** 
-    - Next.js (App Router), React, TypeScript, Tailwind CSS
-    - Zustand for state management
-    - Client-Side APIs (Gemini Pro for text, Gemini Vision Pro for images)
-    - html2pdf.js for PDF generation with proper image handling
-*   **Limitations:** No user accounts, no persistent storage beyond API key in local storage, standalone story experiences.
+This is a Next.js web application designed to help parents and educators create simple, illustrated stories for young children (Kindergarten, 1st Grade, and 2nd Grade reading levels).
+
+![Input Page Screenshot](public/images/input-page.png)
+_Main input form_
+
+![Story Panel Screenshot](public/images/story-panel.png)
+_Example generated story panel_
+
+## Core Functionality
+
+*   **Story Generation:** Creates custom 5-panel stories with illustrations based on a user-provided topic/character and selected reading level (K, 1st, or 2nd grade).
+*   **Input:** Accepts text input for the story idea. Voice input via Web Speech API is available in supported browsers.
+*   **API Integration:** Uses the Google Gemini API for generating story text and illustrations (requires user-provided API key, with a helper modal linking to Google AI Studio for key generation).
+*   **Vocabulary Control:** Guides story generation using grade-appropriate vocabulary lists (based on Dolch, Fry, and common high-frequency words) and constraints for sentence length and new word introduction.
+*   **Interface:** Simple, mobile-friendly UI.
+*   **Output:**
+    *   Displays the generated story panel-by-panel.
+    *   Generates a printable PDF with all panels.
+*   **Footer:** Includes links to the Women Defining AI community and the project's GitHub repository.
 
 ## Getting Started
 
 1.  **Prerequisites:** Node.js (v18+ recommended), npm/yarn/pnpm.
 2.  **Clone the repository:**
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/WomenDefiningAI/reading-story-creator.git
     cd reading-story-creator
     ```
 3.  **Install dependencies:**
@@ -33,38 +37,53 @@ This is a [Next.js](https://nextjs.org/) web application designed to help parent
     npm install
     # or yarn install / pnpm install
     ```
-4.  **Environment Variables:** You will need a Google Gemini API key. While the app allows entering it directly, you can optionally create a `.env.local` file in the root directory for development:
+4.  **Environment Variables (Optional):** While the app allows entering the Google Gemini API key directly (stored in local storage), you can optionally create a `.env.local` file for development if preferred (note: direct local storage use is the primary method currently implemented).
     ```
     # .env.local
-    # NEXT_PUBLIC_GEMINI_API_KEY=YOUR_API_KEY_HERE 
-    # (Note: Currently the app reads/saves directly from/to local storage, 
-    # .env usage is not implemented yet but might be in the future)
+    # NEXT_PUBLIC_GEMINI_API_KEY=YOUR_API_KEY_HERE
     ```
 5.  **Run the development server:**
     ```bash
     npm run dev
     ```
-6.  **Open your browser:** Navigate to [http://localhost:3000](http://localhost:3000).
-7.  **Usage:** 
-    - Enter your Gemini API key
-    - Select a reading level
-    - Type a story topic (e.g., "Pink Bear Goes to School")
-    - Click "Create Story"
-    - Once generated, click "Download PDF" to save a print-ready version
+6.  **Open your browser:** Navigate to <http://localhost:3000>.
+7.  **Usage:**
+    *   Enter your Gemini API key (use the ' ? ' icon for help).
+    *   Select a reading level (Kindergarten, 1st Grade, or 2nd Grade).
+    *   Type or speak a story topic (e.g., "A brave little boat finds a friend").
+    *   Click "Create Story".
+    *   Once generated, view the story and click "Download PDF" to save a print-ready version.
 
 ## Project Structure
 
-*   `src/app/`: Main application routes and layouts (Next.js App Router).
-*   `src/components/`: Reusable React components (UI, form, story elements).
-*   `src/lib/`: Utility functions, constants (e.g., vocabulary lists).
-*   `src/services/`: 
-    - `geminiService.ts`: Handles story generation with Gemini API
-    - `pdfService.ts`: Manages PDF creation with proper image handling
+*   `src/app/`: Main application routes and layout (Next.js App Router).
+*   `src/components/`: Reusable React components (UI, form, story elements, layout).
+*   `src/hooks/`: Custom React hooks (speech recognition, local storage).
+*   `src/lib/`: Utility functions, constants (vocabulary lists/constraints).
+*   `src/services/`: API interaction (Gemini, PDF generation).
 *   `src/store/`: Zustand state management store.
-*   `src/hooks/`: Custom React hooks (e.g., for speech recognition).
 *   `src/types/`: TypeScript type definitions.
-*   `public/`: Static assets (images, fonts).
-*   `docs/`: Project documentation (PRD, Tech Spec).
+*   `public/`: Static assets.
+*   `docs/`: Project documentation.
+
+## Technology Stack
+
+*   Framework: Next.js (App Router)
+*   Language: TypeScript
+*   Styling: Tailwind CSS
+*   UI Components: Shadcn/ui
+*   State Management: Zustand
+*   Linting/Formatting: Biome.js
+*   APIs: Google Gemini (Client-Side), Web Speech API
+*   PDF Generation: html2pdf.js
+
+## Contributing
+
+This project is developed by the [Women Defining AI](https://www.womendefiningai.com/) community. Contributions are welcome!
+
+## Deployment
+
+Deployed via Vercel: [reading-story-creator.vercel.app](https://reading-story-creator.vercel.app/)
 
 ## Recent Updates
 
