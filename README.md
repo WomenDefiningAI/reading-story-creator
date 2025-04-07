@@ -1,15 +1,13 @@
 # Reading Story Creator
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FWomenDefiningAI%2Freading-story-creator)
-
 Try it live: [reading-story-creator.vercel.app](https://reading-story-creator.vercel.app/)
 
 This is a Next.js web application designed to help parents and educators create simple, illustrated stories for young children (Kindergarten, 1st Grade, and 2nd Grade reading levels).
 
-![Input Page Screenshot](public/images/input-page.png)
+![Input Page Screenshot](public/input-page.png)
 _Main input form_
 
-![Story Panel Screenshot](public/images/story-panel.png)
+![Story Panel Screenshot](public/story-panel.png)
 _Example generated story panel_
 
 ## Core Functionality
