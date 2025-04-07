@@ -11,4 +11,15 @@ export interface StoryData {
 	panels: StoryPanelData[];
 }
 
-export type ReadingLevel = 'kindergarten' | 'firstGrade';
+export type ReadingLevel = 'kindergarten' | 'firstGrade' | 'secondGrade';
+
+export type Panel = {
+	text: string;
+	imagePrompt: string;
+	imageData?: string; // Base64 image data
+};
+
+export type Story = {
+	title: string;
+	panels: Panel[];
+};
