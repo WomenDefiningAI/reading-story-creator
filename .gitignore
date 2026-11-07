@@ -39,3 +39,25 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI coding agents: keep local settings, credentials and runtime data out of Git.
+# Ignore rules do not untrack existing files or remove credentials from history.
+# Existing reviewed, tracked team settings/hooks remain versioned and unchanged.
+**/.claude/settings.json
+**/.claude/settings.json.*
+**/.claude/settings.local.json
+**/.claude/settings.local.json.*
+**/.claude/.credentials.json*
+**/.codex/auth.json*
+**/.codex/config.toml
+**/.codex/config.toml.*
+**/.codex/config.local.toml*
+**/.codex/settings.json*
+**/.codex/settings.local.json*
+**/.codex/sessions/
+**/.codex/archived_sessions/
+**/.codex/history.jsonl
+**/.codex/log/
+**/.codex/logs/
+**/.codex/tmp/
+**/.codex/*.sqlite*
